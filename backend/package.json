@@ -1,0 +1,16 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "A file manager system made for a practice of NodeJs",
+  "keywords": [
+    "file",
+    "file-manager"
+  ],
+  "license": "ISC",
+  "author": "Yohannes Asnake",
+  "type": "module",
+  "main": "./src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
