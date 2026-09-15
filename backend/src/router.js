@@ -1,5 +1,7 @@
-import {listFile} from "./controller/fileController.js"
+import {listFile , DeleteFile} from "./controller/fileController.js"
 export function router(req ,res) {
+    console.log("DELETE" === req.method);
+    console.log(req.method)
     let url = new URL(req.url , `http://${req.headers.host}`) ;
     let searchParams = Object.fromEntries(url.searchParams)
     if(req.method === "GET" && url.pathname === "/files"){
@@ -7,7 +9,8 @@ export function router(req ,res) {
     }
     if(req.method === "POST" && url.pathname === "/files"){
     }
-    if(req.method === "DELETE" && url.pathname[0] === "files" && url.pathname[1]){
-
+    if(req.method === "DELETE" && url.pathname === "/files"){
+        console.log("the method is delete")
+        DeleteFile(req ,res , searchParams)
     }
 }
