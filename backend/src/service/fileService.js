@@ -1,5 +1,6 @@
 import path from "node:path";
 import fs from "node:fs/promises";
+import fsp from "node:fs";
 const __dirname = import.meta.dirname;
 const storagePath = path.join(__dirname, "..", "..", "storage", "files");
 const files = await fs.readdir(storagePath);
@@ -12,8 +13,6 @@ export async function fileInfo(searchParams) {
       let eligibale = true;
       if (Object.keys(searchParams).length > 0) {
         for (let prop in searchParams) {
-          console.log(searchParams[prop]);
-          console.log(file);
           eligibale = file === searchParams[prop];
         }
       }
@@ -32,16 +31,56 @@ export async function fileInfo(searchParams) {
   return fileInfo;
 }
 export async function fileDelete(searchParams) {
-  try{
-    if(!searchParams.name) {
-      throw new Error("no file is selected to delete") ;
+  try {
+    if (!searchParams.name) {
+      throw new Error("no file is selected to delete");
     }
-    const filePath = path.join(storagePath , searchParams.name ) ;
-    await fs.unlink(filePath) ;
-    return {success : true }
+    const filePath = path.join(storagePath, searchParams.name);
+    await fs.unlink(filePath);
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false };
   }
-  catch(error){
-    console.log(error)
-    return {success : false}
+}
+export async function downlaodFile(searchParams) {
+  console.log("entered the function");
+  console.log(searchParams.name)
+  const mimeTypes = {
+    ".pdf": "application/pdf",
+    ".txt": "text/plain",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".doc": "application/msword",
+    ".docx":
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  };
+  let fileExists = await fileInfo(searchParams);
+  if (!fileExists) {
+    console.log("the file does not exist")
+    return { success: false, message: "file does not exist", statusCode: 404 };
+  }
+  console.log("the file exists here");
+  try {
+    const readFile = await fs.readFile(
+      path.join(storagePath, searchParams.name),
+    );
+    console.log("file is readed successfully")
+    const extension = path.extname(path.join(storagePath, searchParams.name));
+    console.log(extension.length)
+    return {
+      success: true,
+      message: readFile,
+      statusCode: 200,
+      contentType: mimeTypes[extension],
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "sth bad happened while reading the file",
+      statusCode: 500,
+    };
   }
 }
