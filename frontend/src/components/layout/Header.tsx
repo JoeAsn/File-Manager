@@ -18,7 +18,6 @@ export function Header({ onMenu, onSearch }: HeaderProps) {
       <div className="breadcrumb"><span>Workspace</span><strong>/</strong><span className="current">My files</span></div>
       <div className="header-actions">
         <form className="search-box" onSubmit={handleSubmit}><Icon name="search" size={17} /><label className="sr-only" htmlFor="file-search">Search files</label><input id="file-search" name="query" type="search" placeholder="Search files" /></form>
-        <button className="avatar" type="button" aria-label="Open account menu">JD</button>
       </div>
     </header>
   )

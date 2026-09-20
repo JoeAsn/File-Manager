@@ -9,11 +9,16 @@ export function router(req ,res) {
     if(req.method === "POST" && url.pathname === "/files"){
     }
     if(req.method === "DELETE" && url.pathname === "/files"){
-        console.log("the method is delete")
+        console.log("req is entering the delete router")
         DeleteFile(req ,res , searchParams)
     }
     if (req.method === "GET" , url.pathname === "/files/download"){
         download(req ,res, searchParams)
         console.log("gets the download router")
     }
+    if (req.method === "OPTIONS") {
+    res.statusCode = 204; // No Content
+    res.end();
+    return;
+  }
 }

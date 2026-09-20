@@ -3,17 +3,14 @@ import { Icon } from '../ui/Icon'
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
-  activeSection: 'files' | 'trash'
-  onNavigate: (section: 'files' | 'trash') => void
 }
 
-export function Sidebar({ isOpen, onClose, activeSection, onNavigate }: SidebarProps) {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`} aria-label="Main navigation">
       <div className="brand"><span className="brand-mark">F</span><span>fileflow</span></div>
       <nav>
-        <button className={`nav-item ${activeSection === 'files' ? 'nav-item-active' : ''}`} type="button" onClick={() => onNavigate('files')}><Icon name="grid" /> <span>My files</span></button>
-        <button className={`nav-item ${activeSection === 'trash' ? 'nav-item-active' : ''}`} type="button" onClick={() => onNavigate('trash')}><Icon name="trash" /> <span>Trash</span></button>
+        <button className="nav-item nav-item-active" type="button"><Icon name="grid" /> <span>My files</span></button>
       </nav>
       <div className="storage-card">
         <div className="storage-heading"><span>Storage</span><strong>68%</strong></div>

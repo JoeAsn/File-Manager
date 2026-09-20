@@ -4,6 +4,7 @@ import fsp from "node:fs";
 const __dirname = import.meta.dirname;
 const storagePath = path.join(__dirname, "..", "..", "storage", "files");
 const files = await fs.readdir(storagePath);
+console.log("the files are : " ,files)
 export async function fileInfo(searchParams) {
   let fileInfo = [];
   for (let file of files) {
@@ -36,7 +37,9 @@ export async function fileDelete(searchParams) {
       throw new Error("no file is selected to delete");
     }
     const filePath = path.join(storagePath, searchParams.name);
+    console.log("before delteing a file")
     await fs.unlink(filePath);
+    console.log("file is delted sucessfully")
     return { success: true };
   } catch (error) {
     console.log(error);
