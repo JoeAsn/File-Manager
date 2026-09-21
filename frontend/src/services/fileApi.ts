@@ -45,6 +45,23 @@ export const deleteFile = async (fileName: string): Promise<void> => {
   await request(`/files?name=${encodeURIComponent(fileName)}`, { method: 'DELETE' })
 }
 
+interface UploadResponse {
+  message: string
+}
+
+export const uploadFile = async (file: File): Promise<UploadResponse> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(`${API_URL}/files`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!response.ok) throw new FileApiError('This file could not be uploaded.', response.status)
+  return response.json() as Promise<UploadResponse>
+}
+
 interface BackendFile {
   id: string
   name: string

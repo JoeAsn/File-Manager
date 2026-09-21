@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { deleteFile, downloadFile, FileApiError, getFiles } from '../services/fileApi'
+import { deleteFile, downloadFile, FileApiError, getFiles, uploadFile } from '../services/fileApi'
 import type { FileRecord } from '../types/file'
 import { Header } from '../components/layout/Header'
 import { Sidebar } from '../components/layout/Sidebar'
 import { DeleteDialog } from '../components/delete/DeleteDialog'
 import { FilePreview } from '../components/download/FilePreview'
 import { FileList } from '../components/files/FileList'
+import { UploadModal } from '../components/upload/UploadModal'
 import { Icon } from '../components/ui/Icon'
 
 const getErrorMessage = (error: unknown, fallback: string): string => error instanceof FileApiError ? error.message : fallback
@@ -19,6 +20,9 @@ export function FilesPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [fileToPreview, setFileToPreview] = useState<FileRecord | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [isUploadOpen, setIsUploadOpen] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   const loadFiles = async (search = searchQuery) => {
@@ -78,6 +82,32 @@ export function FilesPage() {
     } catch (error) { setActionError(getErrorMessage(error, 'This file could not be downloaded.')) }
   }
 
+  const handleUpload = async (file: File) => {
+    setIsUploading(true)
+    setUploadError(null)
+    try {
+      await uploadFile(file)
+      const uploadedFile: FileRecord = {
+        id: file.name,
+        name: file.name,
+        size: file.size,
+        mimeType: file.type || 'application/octet-stream',
+        createdAt: new Date().toISOString(),
+      }
+      if (uploadedFile.name.toLowerCase().includes(searchQuery.trim().toLowerCase())) {
+        setFiles((currentFiles) => [
+          uploadedFile,
+          ...currentFiles.filter((currentFile) => currentFile.name !== uploadedFile.name),
+        ])
+      }
+      setIsUploadOpen(false)
+    } catch (error) {
+      setUploadError(getErrorMessage(error, 'This file could not be uploaded.'))
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   return (
     <div className="app-shell">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
@@ -85,7 +115,7 @@ export function FilesPage() {
       <main className="main-content">
         <Header onMenu={() => setIsSidebarOpen(true)} onSearch={handleSearch} />
         <div className="page-content">
-          <div className="page-heading"><div><p className="eyebrow">Workspace / personal</p><h1>My files</h1><p className="page-subtitle">Everything you need, organized in one place.</p></div></div>
+          <div className="page-heading"><div><p className="eyebrow">Workspace / personal</p><h1>My files</h1><p className="page-subtitle">Everything you need, organized in one place.</p></div><button className="button button-primary upload-button" type="button" onClick={() => { setUploadError(null); setIsUploadOpen(true) }}><Icon name="upload" size={16} /> Upload file</button></div>
           {actionError && <div className="alert alert-error" role="alert"><span>{actionError}</span><button type="button" onClick={() => setActionError(null)} aria-label="Dismiss error"><Icon name="close" size={16} /></button></div>}
           <div className="file-toolbar"><div><strong>{files.length} {files.length === 1 ? 'file' : 'files'}</strong><span> · Sorted by last modified</span></div><button className="view-button" type="button" aria-label="Grid view"><Icon name="grid" size={17} /></button></div>
           {isLoading && <div className="state-panel"><span className="spinner" /><strong>Loading your files</strong><span>Just a moment.</span></div>}
@@ -96,6 +126,7 @@ export function FilesPage() {
       </main>
       <DeleteDialog file={fileToDelete} isDeleting={false} error={deleteError} onClose={() => setFileToDelete(null)} onConfirm={handleDelete} />
       <FilePreview file={fileToPreview} onClose={() => setFileToPreview(null)} onDownload={(file) => void handleDownload(file)} />
+      <UploadModal isOpen={isUploadOpen} isUploading={isUploading} error={uploadError} onClose={() => setIsUploadOpen(false)} onUpload={handleUpload} />
     </div>
   )
 }

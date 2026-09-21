@@ -1,4 +1,4 @@
-import {listFile , DeleteFile , download} from "./controller/fileController.js"
+import {listFile , DeleteFile , download , uploadFile} from "./controller/fileController.js"
 export function router(req ,res) {
     let url = new URL(req.url , `http://${req.headers.host}`) ;
     console.log(url.pathname)
@@ -7,6 +7,7 @@ export function router(req ,res) {
         listFile(req ,res, searchParams)
     }
     if(req.method === "POST" && url.pathname === "/files"){
+        uploadFile(req , res)
     }
     if(req.method === "DELETE" && url.pathname === "/files"){
         console.log("req is entering the delete router")

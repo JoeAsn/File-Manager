@@ -1,4 +1,4 @@
-import { fileDelete, downlaodFile, fileInfo } from "../service/fileService.js";
+import { fileDelete, downlaodFile, fileInfo , fileUpload } from "../service/fileService.js";
 export async function listFile(req, res, searchParams) {
   res.setHeader("content-type", "application/json");
   try {
@@ -50,5 +50,14 @@ export async function download(req, res, searchParams) {
   } catch (error) {
     console.log(error);
     res.end(JSON.stringify({ message: "Error happened" }));
+  }
+}
+export async function uploadFile(req ,res){
+  let uploadResponse = await fileUpload(req) ;
+  if (uploadResponse.success === true){
+    res.end(JSON.stringify({message : uploadResponse.message}))
+  }
+  else{
+    res.end(JSON.stringify({message : uploadResponse.message}))
   }
 }

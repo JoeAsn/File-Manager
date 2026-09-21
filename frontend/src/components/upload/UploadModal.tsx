@@ -38,7 +38,11 @@ export function UploadModal({ isOpen, isUploading, error, onClose, onUpload }: U
   }
 
   const handleUpload = async () => {
-    if (selectedFile) await onUpload(selectedFile)
+    if (!selectedFile) return
+    await onUpload(selectedFile)
+    setSelectedFile(null)
+    setValidationError(null)
+    if (inputRef.current) inputRef.current.value = ''
   }
 
   return (
