@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import fsp from "node:fs";
+import fsp, { read } from "node:fs";
 import Busboy from "busboy";
 const __dirname = import.meta.dirname;
 const storagePath = path.join(__dirname, "..", "..", "storage", "files");
@@ -47,9 +47,8 @@ export async function fileDelete(searchParams) {
     return { success: false };
   }
 }
-export async function downlaodFile(searchParams) {
+export async function downlaodFile(res, searchParams) {
   console.log("entered the function");
-  console.log(searchParams.name);
   const mimeTypes = {
     ".pdf": "application/pdf",
     ".txt": "text/plain",
@@ -66,27 +65,17 @@ export async function downlaodFile(searchParams) {
     return { success: false, message: "file does not exist", statusCode: 404 };
   }
   console.log("the file exists here");
-  try {
-    const readFile = await fs.readFile(
-      path.join(storagePath, searchParams.name),
-    );
-    console.log("file is readed successfully");
-    const extension = path.extname(path.join(storagePath, searchParams.name));
-    console.log(extension.length);
-    return {
-      success: true,
-      message: readFile,
-      statusCode: 200,
-      contentType: mimeTypes[extension],
-    };
-  } catch (error) {
-    console.log(error);
-    return {
-      success: false,
-      message: "sth bad happened while reading the file",
-      statusCode: 500,
-    };
-  }
+  const readStream = fsp.createReadStream(
+    path.join(storagePath, searchParams.name),
+  );
+  const extension = path.extname(path.join(storagePath, searchParams.name));
+
+  return {
+    success: true,
+    message: readStream,
+    statusCode: 200,
+    contentType: mimeTypes[extension],
+  };
 }
 export function fileUpload(req) {
   const busboy = Busboy({
@@ -98,7 +87,7 @@ export function fileUpload(req) {
       const { filename, mimeType } = info;
 
       const writeStream = fsp.createWriteStream(
-        path.join(storagePath, filename)
+        path.join(storagePath, filename),
       );
 
       writeStream.on("finish", () => {
