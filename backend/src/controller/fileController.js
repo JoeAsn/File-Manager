@@ -34,19 +34,13 @@ export async function DeleteFile(req, res, searchParams) {
 export async function download(req, res, searchParams) {
   try {
     let downlaodRes = await downlaodFile(searchParams);
-    if (downlaodRes.success) {
-      console.log(downlaodRes.contentType);
       res.statusCode = downlaodRes.statusCode;
       res.setHeader("content-type", downlaodRes.contentType);
       res.setHeader(
         "Content-Disposition",
         `attachment; filename="${searchParams.name}"`,
       );
-      res.end(downlaodRes.message);
-    } else {
-      res.statusCode = downlaodRes.statusCode;
-      res.end(downlaodRes.message);
-    }
+    downlaodRes.message.pipe(res) ;
   } catch (error) {
     console.log(error);
     res.end(JSON.stringify({ message: "Error happened" }));
